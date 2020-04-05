@@ -1,7 +1,6 @@
 package utils;
 
-public class Constants
-{
+public class Constants {
     private static String protocol = "https://";
     private static String country = "ru";
     private static String format = "zip";

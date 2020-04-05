@@ -5,8 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Content
-{
+public class Content {
     private Map<String, String> params;
     private List<String> devices;
     
@@ -31,21 +30,18 @@ public class Content
         devices.add(device);
     }
     
-    public Map<String, String> getParams()
-    {
+    public Map<String, String> getParams() {
         return params;
     }
     
-    public List<String> getDevices()
-    {
+    public List<String> getDevices() {
         return devices;
     }
     
-    public String toString()
-    {
+    public String toString() {
         String div = "±";
         final StringBuilder toReturn = new StringBuilder();
-        params.forEach((k,v) -> toReturn.append(k).append(div).append(v).append(div));
+        params.forEach((k, v) -> toReturn.append(k).append(div).append(v).append(div));
         toReturn.append(div).append("=УСТРОЙСТВА=").append(div);
         devices.forEach(it -> toReturn.append(it).append(div));
         return toReturn.toString();
