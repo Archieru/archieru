@@ -13,51 +13,62 @@ import java.util.List;
 import java.util.Set;
 
 import static utils.Constants.parseEntryPoint;
+import static utils.Constants.showAllUrl;
 
 public class Main
 {
     public static void main(String[] args)
     {
-        Set<String> toGather = getPartListPages(getUrlContent(parseEntryPoint));
+        // get all models
+        Set<String> toGather = getPartListPages(parseEntryPoint);
+
+        // get parts for each model
         Set<String> toCrawl = new HashSet<>();
         for (String url : toGather) {
-            toCrawl.addAll(generateLinkList(getUrlContent(url+"&pgsize=0")));
+            toCrawl.addAll(generateLinkList(getUrlContent(url + showAllUrl)));
         }
+        
+        // get details for each part
         List<Content> allContent = new ArrayList<>();
         for (String url : toCrawl) {
-            allContent.add(new DocumentParserService(getUrlContent(url)).loadContent());
+            allContent.add(new DocumentParserService(url).loadContent());
         }
-        if (!generateCsv(allContent)) {
-            System.out.println("Не удалось сгенерировать CSV");
-        }
-    }
     
-    public static Set<String> getPartListPages(String html) {
-        return new HashSet<>(new DocumentParserService(html).getPartLists());
-    }
-    
-    public static Set<String> generateLinkList(String html) {
-        return new HashSet<>(new DocumentParserService(html).getPartLinks());
-    }
-    
-    public static boolean generateCsv(List<Content> allContent)
-    {
-        try
-        {
-            FileOutputStream fos = new FileOutputStream(new File("prices.csv"));
-    
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-    
-            for (Content content: allContent) {
-                bw.write(content.toString());
-                bw.newLine();
-            }
-    
-            bw.close();
+        // save the details to CSV
+        try {
+            generateCsv(allContent);
         } catch (IOException e) {
-            return false;
+            System.out.println("Не удалось сгенерировать CSV");
+            e.printStackTrace();
         }
-        return true;
+    }
+    
+    public static Set<String> getPartListPages(String url) {
+        return new HashSet<>(
+            new DocumentParserService(
+                getUrlContent(url)
+            ).getPartLists());
+    }
+    
+    public static Set<String> generateLinkList(String url) {
+        return new HashSet<>(
+            new DocumentParserService(
+                getUrlContent(url)
+            ).getPartLinks());
+    }
+    
+    public static void generateCsv(List<Content> allContent) throws IOException
+    {
+        BufferedWriter bw = new BufferedWriter(
+            new OutputStreamWriter(
+                new FileOutputStream(
+                    new File("prices.csv"))));
+        
+        for (Content content: allContent) {
+            bw.write(content.toString());
+            bw.newLine();
+        }
+        bw.close();
     }
     
     public static String getUrlContent(String url)
@@ -75,8 +86,9 @@ public class Main
             }
         } catch (Exception e)
         {
-            System.out.println("Get content while creating article " +
-                "cannot execute GET for url: " + url + ", message is:" + e.getMessage());
+            System.out.println(
+                "Cannot execute GET for url: " + url +
+                ", message is:" + e.getMessage());
         }
         return toReturn;
     }
